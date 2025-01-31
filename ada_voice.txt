@@ -1,0 +1,64 @@
+
+# Prepare utils
+
+[OBS](https://obsproject.com/de) install OBS Studio to capture the audio stream
+[Audacity](https://www.audacityteam.org/download/) install Audacity to further manipulate the audiostream
+[Multi-Voice chorus](https://forum.audacityteam.org/viewtopic.php?f=42&t=68007) a necessary Audacity plugin copy this file to C:\Program Files (x86)\Audacity\Plug-Ins
+[FFmpeg](https://www.ffmpeg.org/download.html) get FFmpeg to separate the audio from the videostream
+
+# Create a recording
+
+Go to [Google text-to-speech](https://cloud.google.com/text-to-speech)
+Use following settings
+| Option | Value |
+| ------ | ----- |
+| Language/locale | English (Unated States) |
+| Voice type | WaveNet |
+| Voice name | en-US-Wavenet-C |
+| Audio device profile | Small home speaker |
+| Speed | 1.00 |
+| Pitch | 0.00 |
+
+Now write your text to speak. You might need to misspell things to make them sound correct.
+
+Start the recording in OBS
+
+Click the "Speak It" button
+
+Stop the recording in OBS
+
+Use FFmpeg to extract the audio from the recording.
+
+```sh
+ffmpeg -i Sample.mkv -vn -ar 44100 -ac 2 -ab 192k -f mp3 Sample.mp3
+```
+
+Open Audacity and import the .mp3 file
+
+Press CTRL + A to select all recording
+
+Open Effect > Multi-Voice Chorus and apply following settings
+
+| Option | Value |
+| ------ | ----- |
+| Speed | 1.90 |
+| Depth | 2.90 |
+| Voices | 1 |
+| Mix | 3.40 |
+| Output Limiter | Enabled |
+
+Open Effect > Delay and Reverb > Echo...
+
+| Option | Value |
+| ------ | ----- |
+| Delay time (seconds) | 0.01 |
+| Decay factor | 0.6 |
+
+An additional option might be Effect > Pitch and Tempo > Change Pitch...
+
+When you're happy with your results, select the part of the audiostream you want to export in a file.
+Or during the export you can select to export the entire project.
+
+Open File -> Export Audio...
+Select a File Name, Folder and Format.
+In addition you might want to check the option "Trim blank space before first clip"

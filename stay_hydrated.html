@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stay hydrated</title>
+    <style>
+        /* Dark Mode Styles */
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column; /* Align items vertically */
+            align-items: center;    /* Center content horizontally */
+            justify-content: center; /* Center content vertically */
+            height: 100vh; /* Full viewport height */
+            margin: 0;
+            background-color: #2c2f36; /* Dark background color */
+            color: #e0e0e0; /* Light text color */
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            font-size: 2rem;
+            color: #ffffff; /* White text for the heading */
+        }
+
+        label, input {
+            margin: 10px 0;
+            font-size: 16px;
+            color: #e0e0e0;
+        }
+
+        #fileInput, #timeoutInput {
+            padding: 8px;
+            font-size: 16px;
+            background-color: #444b54; /* Darker input field */
+            color: #e0e0e0; /* Light text in input */
+            border: 1px solid #666d77; /* Border color */
+            border-radius: 4px;
+        }
+
+        #timeoutInput {
+            width: 100px;
+            text-align: center;
+        }
+
+        audio {
+            margin-top: 20px;
+            max-width: 100%;
+            background-color: #444b54; /* Darker background for the audio player */
+            border: 1px solid #666d77; /* Border color */
+            border-radius: 4px;
+        }
+
+        /* Optional: Style the file input button */
+        input[type="file"] {
+            font-size: 16px;
+            color: #e0e0e0;
+        }
+
+        /* Button-like appearance for the file input */
+        input[type="file"]::-webkit-file-upload-button {
+            background-color: #4c5d63;
+            border: none;
+            color: #e0e0e0;
+            padding: 8px;
+            cursor: pointer;
+        }
+
+        input[type="file"]:hover::-webkit-file-upload-button {
+            background-color: #3a4a4f; /* Slightly darker on hover */
+        }
+
+        /* Countdown Display */
+        #countdownDisplay {
+            font-size: 1.5rem;
+            margin-top: 20px;
+            color: #ffffff; /* Yellow color for the countdown */
+        }
+    </style>
+</head>
+<body>
+    <h1>Stay hydrated</h1>
+    
+    <!-- Button to select an audio file -->
+    <label for="fileInput">Select your audio file:</label>
+    <input type="file" id="fileInput" accept="audio/*">
+    
+    <!-- Timeout duration control -->
+	<div>
+		<label for="timeoutInput">Set Timeout (minutes):</label>
+		<input type="number" id="timeoutInput" value="20" min="1" step="1">
+	</div>
+    
+    <!-- Audio element -->
+    <audio id="audioPlayer" controls>
+        <source id="audioSource" src="" type="audio/mp3">
+        Your browser does not support the audio element.
+    </audio>
+
+    <!-- Countdown Display -->
+    <div id="countdownDisplay">Timeout: 20:00</div>
+
+    <script>
+        // Reference to elements
+        const fileInput = document.getElementById('fileInput');
+        const audioPlayer = document.getElementById('audioPlayer');
+        const audioSource = document.getElementById('audioSource');
+        const timeoutInput = document.getElementById('timeoutInput');
+        const countdownDisplay = document.getElementById('countdownDisplay');
+
+        // Set the default timeout duration (20 minutes)
+        let timeoutDurationMinutes = parseInt(timeoutInput.value);
+        let timeoutDurationMilliseconds = timeoutDurationMinutes * 60000; // Convert minutes to milliseconds
+
+        // Timeout and countdown variables
+        let timeout;
+        let countdownInterval;
+        let remainingTime = timeoutDurationMilliseconds / 1000; // Remaining time in seconds
+
+        // Function to update the countdown display
+        function updateCountdownDisplay() {
+            const minutes = Math.floor(remainingTime / 60);
+            const seconds = remainingTime % 60;
+            countdownDisplay.textContent = `Timeout: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        }
+
+        // Function to handle file selection
+        fileInput.addEventListener('change', function (event) {
+            const file = event.target.files[0];
+            if (file) {
+                const fileURL = URL.createObjectURL(file);
+                audioSource.src = fileURL;
+                audioPlayer.load(); // Reload audio source
+                audioPlayer.play(); // Start playing the audio
+                startTimeout(); // Start the timeout after file selection
+            }
+        });
+
+        // Function to start and reset the timeout
+        function startTimeout() {
+            clearTimeout(timeout); // Clear any existing timeout
+            clearInterval(countdownInterval); // Clear any existing countdown interval
+
+            remainingTime = timeoutDurationMilliseconds / 1000; // Reset remaining time to the starting value
+
+            countdownInterval = setInterval(() => {
+                remainingTime--; // Decrease remaining time by 1 second
+                updateCountdownDisplay(); // Update the display
+                if (remainingTime <= 0) {
+                    // Timeout logic: reset and replay the audio when timeout reaches 0
+                    audioPlayer.currentTime = 0; // Reset audio playback to the beginning
+                    audioPlayer.play(); // Replay the audio
+                    startTimeout(); // Restart the timeout
+                }
+            }, 1000); // Update every second
+
+            timeout = setTimeout(() => {
+                // Timeout logic: reset and replay the audio when timeout reaches 0
+                audioPlayer.currentTime = 0; // Reset audio playback to the beginning
+                audioPlayer.play(); // Replay the audio
+                startTimeout(); // Restart the timeout
+            }, timeoutDurationMilliseconds);
+        }
+
+        // Update the timeout duration when the user modifies the input
+        timeoutInput.addEventListener('input', function () {
+            timeoutDurationMinutes = parseInt(timeoutInput.value); // Get the new timeout value in minutes
+            timeoutDurationMilliseconds = timeoutDurationMinutes * 60000; // Convert to milliseconds
+            clearTimeout(timeout); // Clear the previous timeout
+            clearInterval(countdownInterval); // Clear the previous countdown interval
+            startTimeout(); // Restart with the new timeout
+        });
+
+        // Initialize countdown display
+        updateCountdownDisplay();
+    </script>
+</body>
+</html>
